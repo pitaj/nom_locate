@@ -22,6 +22,7 @@ alloc = ["nom/alloc"]
 generic-simd = ["bytecount/generic-simd"]
 runtime-dispatch-simd = ["bytecount/runtime-dispatch-simd"]
 stable-deref-trait = ["stable_deref_trait"]
+easy-test = []
 
 [dependencies]
 bytecount = "^0.6"

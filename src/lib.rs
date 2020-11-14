@@ -229,11 +229,29 @@ impl<T: AsBytes, X> LocatedSpan<T, X> {
             offset: 0,
             line: 1,
             fragment: program,
-            extra: extra,
+            extra,
+        }
+    }
+
+    #[cfg(feature = "easy-test")]
+    /// Create a span for use in testing
+    /// 
+    /// Spans created this way will be tested for equality purely on the contents,
+    /// ignoring the `offset` and `line`.
+    pub fn new_test(program: T) -> LocatedSpan<T, X>
+        where X: Default
+    {
+        LocatedSpan {
+            offset: 0,
+            line: 0,
+            fragment: program,
+            extra: X::default(),
         }
     }
 
     /// Similar to `new_extra`, but allows overriding offset and line.
+    /// 
+    /// # Safety
     /// This is unsafe, because giving an offset too large may result in
     /// undefined behavior, as some methods move back along the fragment
     /// assuming any negative index within the offset is valid.
@@ -431,6 +449,18 @@ impl<T: AsBytes, X: Default> From<T> for LocatedSpan<T, X> {
     }
 }
 
+#[cfg(feature = "easy-test")]
+impl<T: AsBytes + PartialEq, X> PartialEq for LocatedSpan<T, X> {
+    fn eq(&self, other: &Self) -> bool {
+        if self.line == 0 || other.line == 0 {
+            self.fragment == other.fragment
+        } else {
+            self.line == other.line && self.offset == other.offset && self.fragment == other.fragment
+        }
+    }
+}
+
+#[cfg(not(feature = "easy-test"))]
 impl<T: AsBytes + PartialEq, X> PartialEq for LocatedSpan<T, X> {
     fn eq(&self, other: &Self) -> bool {
         self.line == other.line && self.offset == other.offset && self.fragment == other.fragment
